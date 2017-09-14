@@ -14,7 +14,18 @@ class SimpleFinances
     $db = SQLite3::Database.new('../data/dbfile')
     $db.results_as_hash = true
 
-    puts 'Creating the transaction table'
+    if $db.table_info('transactions').empty?
+      puts 'Creating the transaction table'
+      $db.execute %q{
+      CREATE TABLE transactions (
+      id integer primary key,
+      date date,
+      amount float,
+      category varchar(50),
+      payee varchar(50),
+      account varchar(20))
+      }
+    end
   end
 
 
@@ -25,7 +36,7 @@ class SimpleFinances
   end
 
   def get_input
-    gets.strip
+    gets.chomp # difference betweein .strip?
   end
 
   def menu
@@ -50,8 +61,9 @@ class SimpleFinances
   end
 
   def new_transaction
-    print "Date: #{Time.now.to_date}"
-    date = Time.new.to_date if get_input
+    print 'Date: '
+    date = Time.new.to_date unless get_input
+    puts date.to_s
     print 'Amount: '
     amount = get_input
     print 'Category: '
